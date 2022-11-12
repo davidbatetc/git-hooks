@@ -51,12 +51,11 @@ function check_whitespaces_and_conflict_markers()
 # otherwise.
 function check_newline_eof()
 {
-	non_empty_last_bytes="$(
+	if test "$(
 		git diff --staged --name-only \
 			| xargs -I{} tail --bytes 1 {} \
-	)"
-
-	if [ -n "$non_empty_last_bytes" ]; then
+			| wc -w
+	)" != 0; then
 		log_error "All files should end with a new line."
 		log_exit 3
 	fi
