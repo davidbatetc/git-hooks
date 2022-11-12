@@ -112,6 +112,9 @@ function check_no_tabs()
 }
 
 
+# Check that the lines that differ between the files that are to be staged and
+# the HEAD follow the clang-format rules. Return non-zero exit status if they
+# do not.
 function check_clang_format()
 {
 	local bad_files=""
