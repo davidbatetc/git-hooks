@@ -90,7 +90,7 @@ function check_newline_eof()
 # non-zero status otherwise.
 function check_no_tabs()
 {
-	local n_bad_files=0
+	local has_bad_files=0
 
 	for file in $(git diff --staged --name-only); do
 		local n_tabs
@@ -102,13 +102,11 @@ function check_no_tabs()
 
 		if [ "$n_tabs" -ne 0 ]; then
 			log_error "Found tabs in file '$file'."
-			n_bad_files=$((n_bad_files + 1))
+			has_bad_files=1
 		fi
 	done
 
-	if [ "$n_bad_files" -ne 0 ]; then
-		log_error "Found $n_bad_files file(s) that contain tab characters."
-		log_error "Tab characters are not allowed"
+	if [ "$has_bad_files" -ne 0 ]; then
 		log_exit 5
 	fi
 }
