@@ -117,6 +117,11 @@ function check_no_tabs()
 # do not.
 function check_clang_format()
 {
+	if [ -z "$(which git-clang-format)" ]; then
+		log_error "Cannot find 'git-clang-format'. Is it installed?"
+		log_exit 6
+	fi
+
 	local bad_files=""
 
 	for file in $(git diff --staged --name-only); do
@@ -131,7 +136,7 @@ function check_clang_format()
 		log_error "Run this command to fix the file and commit again."
 		echo " clang-format -i$bad_files \\"
 		echo " && git add$bad_files"
-		log_exit 6
+		log_exit 7
 	fi
 }
 
