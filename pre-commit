@@ -85,12 +85,41 @@ function check_newline_eof()
 }
 
 
+# Check that none of the files staged contain tab characters, and exit with
+# non-zero status otherwise.
+function check_no_tabs()
+{
+	local n_bad_files=0
+
+	for file in $(git diff --staged --name-only); do
+		local n_tabs
+		n_tabs="$(
+			git show :"$file" \
+				| grep "$(printf '\t')" --only-matching \
+				| wc -c
+		)"
+
+		if [ "$n_tabs" -ne 0 ]; then
+			log_error "Found tabs in file '$file'."
+			n_bad_files=$((n_bad_files + 1))
+		fi
+	done
+
+	if [ "$n_bad_files" -ne 0 ]; then
+		log_error "Found $n_bad_files file(s) that contain tab characters."
+		log_error "Tab characters are not allowed"
+		log_exit 5
+	fi
+}
+
+
 function main()
 {
 	check_ascii_filenames
 	check_space_filenames
 	check_whitespaces_and_conflict_markers
 	check_newline_eof
+	check_no_tabs
 }
 
 
