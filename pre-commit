@@ -66,9 +66,10 @@ function check_whitespaces_and_conflict_markers()
 # otherwise.
 function check_newline_eof()
 {
-	n_bad_files=0
+	local n_bad_files=0
 
 	for file in $(git diff --staged --name-only); do
+		local trailing_byte
 		trailing_byte="$(git show :"$file" | tail --bytes 1)"
 
 		if test "$(echo "$trailing_byte" | wc -w)" != 0; then
