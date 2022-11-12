@@ -10,3 +10,7 @@ Alternatively, clone this repository somewhere else and create a symbolic link c
 $ git clone <link-to-repository> <chosen-path>
 $ ln -s <chosen-path> .git/hooks
 ```
+If you want to use a relative `<chosen-path>` make sure that it is relative to the `.git` folder when creating the symbolic link. The following command should not produce any output:
+```sh
+$ test -e .git/hooks || echo "Broken symbolic link"
+```
