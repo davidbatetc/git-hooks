@@ -10,6 +10,7 @@ function log_error()
 }
 
 
+# For a given number, log an error and exit with the number as exit status.
 function log_exit()
 {
 	local exit_status="$1"
