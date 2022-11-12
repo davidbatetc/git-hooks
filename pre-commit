@@ -39,7 +39,7 @@ function check_ascii_filenames()
 
 # Check that file names do not contain whitespaces, and exit with non-zero
 # status otherwise.
-function check_space_filenames()
+function check_no_space_filenames()
 {
 	if test "$(
 		git diff --staged --name-only \
@@ -54,7 +54,7 @@ function check_space_filenames()
 
 # Check that the files staged contain no whitespace errors or conflict markers
 # and exit with non-zero status if this does not hold.
-function check_whitespaces_and_conflict_markers()
+function check_no_whitespaces_or_conflict_markers()
 {
 	if ! git diff --check --staged; then
 		log_exit 3
@@ -117,8 +117,8 @@ function check_no_tabs()
 function main()
 {
 	check_ascii_filenames
-	check_space_filenames
-	check_whitespaces_and_conflict_markers
+	check_no_space_filenames
+	check_no_whitespaces_or_conflict_markers
 	check_newline_eof
 	check_no_tabs
 }
