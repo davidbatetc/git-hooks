@@ -68,7 +68,7 @@ function check_no_whitespaces_or_conflict_markers()
 # otherwise.
 function check_newline_eof()
 {
-	local n_bad_files=0
+	local has_bad_files=0
 
 	for file in $(git diff --staged --name-only); do
 		local trailing_byte
@@ -76,13 +76,11 @@ function check_newline_eof()
 
 		if test "$(echo "$trailing_byte" | wc -w)" != 0; then
 			log_error "File '$file' does not end with a new line."
-			n_bad_files=$((n_bad_files + 1))
+			has_bad_files=1
 		fi
 	done
 
-	if [ "$n_bad_files" -ne 0 ]; then
-		log_error "Found $n_bad_files file(s) that do not end with a new line."
-		log_error "All files should end with a new line."
+	if [ "$has_bad_files" -ne 0 ]; then
 		log_exit 4
 	fi
 }
