@@ -4,6 +4,7 @@
 set -eu
 
 
+# Log an error to stderr.
 function log_error()
 {
 	>&2 echo "[ERROR] $*"
