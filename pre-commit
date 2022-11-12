@@ -16,6 +16,7 @@ function log_exit()
 {
 	local exit_status="$1"
 
+	log_error ""
 	log_error "Commit failed with exit status $exit_status."
 	log_error "Fix the errors and commit again."
 
