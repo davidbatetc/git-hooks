@@ -116,6 +116,27 @@ function check_no_tabs()
 }
 
 
+function check_clang_format()
+{
+	local bad_files=""
+
+	for file in $(git diff --staged --name-only); do
+		if test -n "$(git clang-format --staged --diff --quiet -- "$file")"; then
+			log_error "Changes in '$file' do not follow the clang-format rules."
+			bad_files="$bad_files \"$file\""
+		fi
+	done
+
+	if [ -n "$bad_files" ]; then
+		log_error ""
+		log_error "Run this command to fix the file and commit again."
+		echo " clang-format -i$bad_files \\"
+		echo " && git add$bad_files"
+		log_exit 6
+	fi
+}
+
+
 function main()
 {
 	check_ascii_filenames
@@ -123,6 +144,7 @@ function main()
 	check_no_whitespaces_or_conflict_markers
 	check_newline_eof
 	check_no_tabs
+	check_clang_format
 }
 
 
