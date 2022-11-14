@@ -110,31 +110,75 @@ check_no_tabs()
 }
 
 
+# Return zero if the file given as an argument is recognized by clang-format,
+# otherwise exit with non-zero status.
+is_clang_formattable()
+{
+	file_name="$1"
+
+	# Hardcoding the extensions is not an ideal solution, but this is done due
+	# to lack of a better alternative.
+	ext_regexp='.*\.(java|mjs|js|ts|json|m|mm|proto|protodevel|td|textpb|pb\.txt|textproto|asciipb|sv|svh|v|vh)$'
+
+	if echo "$file_name" | grep --extended-regexp --regexp "$ext_regexp" > /dev/null; then
+		return 0;
+	else
+		return 1;
+	fi
+}
+
+
 # Check that the lines that differ between the files that are to be staged and
 # the HEAD follow the clang-format rules. Return non-zero exit status if they
 # do not.
 check_clang_format()
 {
-	if [ -z "$(which git-clang-format)" ]; then
-		log_error "Cannot find 'git-clang-format'. Is it installed?"
+	if [ -z "$(which clang-format)" ]; then
+		log_error "Cannot find 'clang-format'. Is it installed?"
 		log_exit 6
 	fi
 
 	bad_files=""
 
 	for file in $(git diff --staged --name-only); do
-		if test -n "$(git clang-format --staged --diff --quiet -- "$file")"; then
-			log_error "Changes in '$file' do not follow the clang-format rules."
-			bad_files="$bad_files \"$file\""
+		if ! is_clang_formattable "$(basename "$file")"; then
+			continue
 		fi
+
+		file_name="$(basename "$file")"
+		dir_name="$(dirname "$file")"
+
+		# The 'trap' command is there to make sure that the temporary files will
+		# get deleted eventually.
+		original=$(mktemp --tmpdir="$dir_name" --suffix="_$file_name")
+		trap 'rm -f "$original"' EXIT INT QUIT TERM
+		formatted=$(mktemp --tmpdir="$dir_name" --suffix="_$file_name")
+		trap 'rm -f "$formatted"' EXIT INT QUIT TERM
+
+		# We fill the two files to compare.
+		git show :"$file" >"$original"
+		clang-format "$original" >"$formatted"
+
+		exit_status=0
+		diff "$original" "$formatted" > /dev/null || exit_status=$?
+
+		if [ $exit_status -eq 1 ]; then
+			log_error "File '$file' does not follow the clang-format rules."
+			bad_files="$bad_files \"$file\""
+		elif [ $exit_status -ne 0 ]; then
+			log_error "Unexpected error when checking formatting of '$file'."
+			log_exit 7
+		fi
+
+		rm -f "$original"
+		rm -f "$formatted"
 	done
 
 	if [ -n "$bad_files" ]; then
 		log_error ""
-		log_error "Run this command to fix the file and commit again."
-		echo " clang-format -i$bad_files \\"
-		echo " && git add$bad_files"
-		log_exit 7
+		log_error "Run this command to fix the file and commit again:"
+		echo "  $ clang-format -i$bad_files"
+		log_exit 8
 	fi
 }
 
