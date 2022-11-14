@@ -176,7 +176,7 @@ check_clang_format()
 
 	if [ -n "$bad_files" ]; then
 		log_error ""
-		log_error "Run this command to fix the file and commit again:"
+		log_error "Run this command to fix the file(s) and commit again:"
 		echo "  $ clang-format -i$bad_files"
 		log_exit 8
 	fi
