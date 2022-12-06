@@ -71,6 +71,10 @@ check_newline_eof()
 	has_bad_files=0
 
 	for file in $(git diff --staged --name-only); do
+		if ! [ -e file ]; then
+			continue
+		fi
+
 		trailing_byte="$(git show :"$file" | tail --bytes 1)"
 
 		if test "$(echo "$trailing_byte" | wc -w)" != 0; then
@@ -92,6 +96,10 @@ check_no_tabs()
 	has_bad_files=0
 
 	for file in $(git diff --staged --name-only); do
+		if ! [ -e file ]; then
+			continue
+		fi
+
 		n_tabs="$(
 			git show :"$file" \
 				| grep "$(printf '\t')" --only-matching \
@@ -141,7 +149,7 @@ check_clang_format()
 	bad_files=""
 
 	for file in $(git diff --staged --name-only); do
-		if ! is_clang_formattable "$(basename "$file")"; then
+		if ! is_clang_formattable "$(basename "$file")" || ! [ -e file ]; then
 			continue
 		fi
 
