@@ -159,9 +159,8 @@ check_clang_format()
 		# The 'trap' command is there to make sure that the temporary files will
 		# get deleted eventually.
 		original=$(mktemp --tmpdir="$dir_name" --suffix="_$file_name")
-		trap 'rm -f "$original"' EXIT INT QUIT TERM
 		formatted=$(mktemp --tmpdir="$dir_name" --suffix="_$file_name")
-		trap 'rm -f "$formatted"' EXIT INT QUIT TERM
+		trap 'rm -f "$original" "$formatted"' EXIT INT QUIT TERM
 
 		# We fill the two files to compare.
 		git show :"$file" >"$original"
