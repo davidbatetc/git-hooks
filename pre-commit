@@ -149,7 +149,7 @@ check_clang_format()
 	bad_files=""
 
 	for file in $(git diff --staged --name-only); do
-		if ! is_clang_formattable "$(basename "$file")" || ! [ -e file ]; then
+		if ! is_clang_formattable "$(basename "$file")" || ! [ -e "$file" ]; then
 			continue
 		fi
 
